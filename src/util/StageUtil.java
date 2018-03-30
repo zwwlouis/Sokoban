@@ -3,7 +3,10 @@ package util;
 
 import model.SokobanException;
 
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+
 public class StageUtil {
 
 
@@ -131,6 +134,46 @@ public class StageUtil {
             }
             System.out.printf("\n\r");
         }
+    }
+
+    /**
+     * 将玩家可达区域用玩家填满，消除玩家位置带来的地图区别
+     *
+     * @throws SokobanException
+     */
+    public static void putPlayerOnAllReachable(int[][] map) throws SokobanException {
+        int row = map.length;
+        int col = map[0].length;
+        Queue<int[]> playerQueue = new LinkedList<>();
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if ((map[i][j] & PLAYER) > 0) {
+                    int[] site = {i,j};
+                    playerQueue.offer(site);
+                }
+            }
+        }
+        while(playerQueue.size()>0){
+            int[] site = playerQueue.poll();
+            int newRow = site[0] - 1;
+            int newCol = site[1] - 1;
+            if(newRow >=0 && newCol >=0 ){
+
+            }
+        }
+    }
+    public static boolean putPlayWithBoolResult(int map[][], int mapRow, int mapCol, int row,int col){
+        if(col < 0 || col >= mapCol || row < 0 || row >= mapRow){
+            return false;
+        }else if((map[row][col] & PLAYER)>0){
+            return false;
+        }else if((map[row][col] & BOX)>0){
+            return false;
+        }else if((map[row][col] & BLOCK)>0){
+            return false;
+        }
+        map[row][col] = map[row][col] | PLAYER;
+        return true;
     }
 
 
