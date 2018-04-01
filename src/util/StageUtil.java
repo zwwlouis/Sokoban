@@ -39,16 +39,6 @@ public class StageUtil {
         return stage;
     }
 
-    public static void fillReachableWithPlayer(int[][] stage) {
-        int row = stage.length;
-        int col = stage[0].length;
-        //找到人所在地块
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-
-            }
-        }
-    }
 
         /**
          * 石头
@@ -71,6 +61,10 @@ public class StageUtil {
     private final static int BOX = 0b0010;
     private final static int PLAYER = 0b0100;
     private final static int BLOCK = 0b1000;
+    private final static int DESTINATION_CLEAR = 0b1110;
+    private final static int BOX_CLEAR = 0b1101;
+    private final static int PLAYER_CLEAR = 0b1011;
+    private final static int BLOCK_CLEAR = 0b0111;
 
     /**
      * 在单元格上放置玩家
@@ -106,7 +100,7 @@ public class StageUtil {
      */
     public static void putBlock(int[][] map, int row, int col) throws SokobanException {
         if((map[row][col] & PLAYER) > 0 || (map[row][col] & BOX) > 0 ||(map[row][col] & DESTINATION) > 0){
-            throw new SokobanException(String.format("无法放置障碍 %d行，%d列 已经存在其他物体",row,col));
+            throw new SokobanException(String.format("无法放置障碍 %d行，%d列 已经存在其他物体",row+1,col+1));
         }
         map[row][col] = map[row][col]|BLOCK;
     }
@@ -119,13 +113,14 @@ public class StageUtil {
      */
     public static void putDestination(int[][] map, int row, int col) throws SokobanException {
         if((map[row][col] & BLOCK) > 0){
-            throw new SokobanException(String.format("无法放置目的地 %d行，%d列 已经存在障碍物",row,col));
+            throw new SokobanException(String.format("无法放置目的地 %d行，%d列 已经存在障碍物",row+1,col+1));
         }
         map[row][col] = map[row][col]|DESTINATION;
     }
 
     public static void printMap(int[][] map){
         System.out.println("--------------*** 关卡图 ***------------------");
+        System.out.println("1-目标点  2 - 箱子  3-箱子&目标点  4-人  5-人&目标点  8-墙壁");
         int row = map.length;
         int col = map[0].length;
         for (int i = 0; i < row; i++) {
@@ -141,27 +136,55 @@ public class StageUtil {
      *
      * @throws SokobanException
      */
-    public static void putPlayerOnAllReachable(int[][] map) throws SokobanException {
+    public static Queue<int[]> putPlayerOnAllReachable(int[][] map){
         int row = map.length;
         int col = map[0].length;
         Queue<int[]> playerQueue = new LinkedList<>();
+        Queue<int[]> possiblePlaySites = new LinkedList<>();
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 if ((map[i][j] & PLAYER) > 0) {
                     int[] site = {i,j};
                     playerQueue.offer(site);
+                    possiblePlaySites.offer(site);
                 }
             }
         }
         while(playerQueue.size()>0){
             int[] site = playerQueue.poll();
-            int newRow = site[0] - 1;
-            int newCol = site[1] - 1;
-            if(newRow >=0 && newCol >=0 ){
-
+            if(putPlayWithBoolResult(map,row,col,site[0],site[1]-1)){
+                int[] newSite = {site[0],site[1]-1};
+                playerQueue.offer(newSite);
+                possiblePlaySites.offer(newSite);
+            }
+            if(putPlayWithBoolResult(map,row,col,site[0],site[1]+1)){
+                int[] newSite = {site[0],site[1]+1};
+                playerQueue.offer(newSite);
+                possiblePlaySites.offer(newSite);
+            }
+            if(putPlayWithBoolResult(map,row,col,site[0]-1,site[1])){
+                int[] newSite = {site[0]-1,site[1]};
+                playerQueue.offer(newSite);
+                possiblePlaySites.offer(newSite);
+            }
+            if(putPlayWithBoolResult(map,row,col,site[0]+1,site[1])){
+                int[] newSite = {site[0]+1,site[1]};
+                playerQueue.offer(newSite);
+                possiblePlaySites.offer(newSite);
             }
         }
+        return possiblePlaySites;
     }
+
+    /**
+     * 放置玩家，成功放置时返回true
+     * @param map
+     * @param mapRow
+     * @param mapCol
+     * @param row
+     * @param col
+     * @return
+     */
     public static boolean putPlayWithBoolResult(int map[][], int mapRow, int mapCol, int row,int col){
         if(col < 0 || col >= mapCol || row < 0 || row >= mapRow){
             return false;
@@ -176,5 +199,54 @@ public class StageUtil {
         return true;
     }
 
+    /**
+     * 将箱子推动一格并生成一张新的克隆地图
+     * @param oriMap
+     * @param playerRow
+     * @param playerCol
+     * @param boxRow
+     * @param boxCol
+     * @return
+     */
+    public static int[][] pushBoxToCreateNewMap(int[][] oriMap, int playerRow, int playerCol, int boxRow, int boxCol){
+        //得到原地图的克隆
+        int[][] cloneMap = oriMap.clone();
+        int boxNewRow = boxRow + boxRow - playerRow;
+        int boxNewCol = boxCol = boxCol - playerCol;
+        oriMap[boxRow][boxCol] = (oriMap[boxRow][boxCol]&BOX_CLEAR)|PLAYER;
+        oriMap[boxNewRow][boxNewCol] = oriMap[boxNewRow][boxNewCol]|BOX;
+        return cloneMap;
+    }
+
+    /**
+     * 清空列表中所有位置上的玩家
+     * @param map
+     * @param playerSites
+     */
+    public static void clearAndReputPlayer(int[][] map, Queue<int[]> playerSites){
+        for (int[] site:playerSites) {
+            map[site[0]][site[1]] = map[site[0]][site[1]] & PLAYER_CLEAR;
+        }
+    }
+
+    /**
+     * 判断某点箱子是否可达
+     * @param map
+     * @param mapRow
+     * @param mapCol
+     * @param row
+     * @param col
+     * @return
+     */
+    public static boolean boxReachable(int map[][], int mapRow, int mapCol, int row,int col){
+        if(col < 0 || col >= mapCol || row < 0 || row >= mapRow){
+            return false;
+        }else if((map[row][col] & BOX)>0){
+            return false;
+        }else if((map[row][col] & BLOCK)>0){
+            return false;
+        }
+        return true;
+    }
 
 }
