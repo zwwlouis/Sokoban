@@ -2,6 +2,7 @@ package util;
 
 
 import model.SokobanException;
+import model.SokobanMap;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,76 +20,106 @@ public class SokobanUtil {
      * 4 - 人
      * 5 - 人&目标点
      * 8 - 墙壁
-     * **/
-    private final static int DESTINATION = 0b0001;
-    private final static int BOX = 0b0010;
-    private final static int PLAYER = 0b0100;
-    private final static int BLOCK = 0b1000;
-    private final static int DESTINATION_CLEAR = 0b1110;
-    private final static int BOX_CLEAR = 0b1101;
-    private final static int PLAYER_CLEAR = 0b1011;
-    private final static int BLOCK_CLEAR = 0b0111;
+     **/
+    public final static int DESTINATION = 0b0001;
+    public final static int BOX = 0b0010;
+    public final static int PLAYER = 0b0100;
+    public final static int BLOCK = 0b1000;
+    public final static int DESTINATION_CLEAR = 0b1110;
+    public final static int BOX_CLEAR = 0b1101;
+    public final static int PLAYER_CLEAR = 0b1011;
+    public final static int BLOCK_CLEAR = 0b0111;
 
     /**
      * 在单元格上放置玩家
+     *
      * @param map
      * @param row
      * @param col
      */
     public static void putPlayer(int[][] map, int row, int col) throws SokobanException {
-        if((map[row][col] & BOX) > 0 || (map[row][col] & BLOCK) > 0){
-            throw new SokobanException(String.format("无法放置玩家 %d行，%d列 已经存在其他物体",row,col));
+        if ((map[row][col] & BOX) > 0 || (map[row][col] & BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置玩家 %d行，%d列 已经存在其他物体", row, col));
         }
-        map[row][col] = map[row][col]|PLAYER;
+        map[row][col] = map[row][col] | PLAYER;
     }
 
     /**
      * 在单元格上放置箱子
+     *
      * @param map
      * @param row
      * @param col
      */
     public static void putBox(int[][] map, int row, int col) throws SokobanException {
-        if((map[row][col] & PLAYER) > 0 || (map[row][col] & BLOCK) > 0){
-            throw new SokobanException(String.format("无法放置箱子 %d行，%d列 已经存在其他物体",row,col));
+        if ((map[row][col] & PLAYER) > 0 || (map[row][col] & BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置箱子 %d行，%d列 已经存在其他物体", row, col));
         }
-        map[row][col] = map[row][col]|BOX;
+        map[row][col] = map[row][col] | BOX;
     }
 
     /**
      * 在单元格上放置障碍物
+     *
      * @param map
      * @param row
      * @param col
      */
     public static void putBlock(int[][] map, int row, int col) throws SokobanException {
-        if((map[row][col] & PLAYER) > 0 || (map[row][col] & BOX) > 0 ||(map[row][col] & DESTINATION) > 0){
-            throw new SokobanException(String.format("无法放置障碍 %d行，%d列 已经存在其他物体",row+1,col+1));
+        if ((map[row][col] & PLAYER) > 0 || (map[row][col] & BOX) > 0 || (map[row][col] & DESTINATION) > 0) {
+            throw new SokobanException(String.format("无法放置障碍 %d行，%d列 已经存在其他物体", row + 1, col + 1));
         }
-        map[row][col] = map[row][col]|BLOCK;
+        map[row][col] = map[row][col] | BLOCK;
     }
 
     /**
      * 在单元格上放置障碍物
+     *
      * @param map
      * @param row
      * @param col
      */
     public static void putDestination(int[][] map, int row, int col) throws SokobanException {
-        if((map[row][col] & BLOCK) > 0){
-            throw new SokobanException(String.format("无法放置目的地 %d行，%d列 已经存在障碍物",row+1,col+1));
+        if ((map[row][col] & BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置目的地 %d行，%d列 已经存在障碍物", row + 1, col + 1));
         }
-        map[row][col] = map[row][col]|DESTINATION;
+        map[row][col] = map[row][col] | DESTINATION;
     }
 
-    public static void printMap(int[][] map){
+    public static void printMap(int[][] map) {
         System.out.println("--------------*** 关卡图 ***------------------");
         System.out.println("1-目标点  2 - 箱子  3-箱子&目标点  4-人  5-人&目标点  8-墙壁");
         int row = map.length;
         int col = map[0].length;
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
-                System.out.printf(map[i][j]+"  ");
+                String charac = "0";
+                switch (map[i][j]){
+                    case 0:
+                        charac = "  ";
+                        break;
+                    case 1:
+                        charac = "x ";
+                        break;
+                    case 2:
+                        charac = "□ ";
+                        break;
+                    case 3:
+                        charac = "☒ ";
+                        break;
+                    case 4:
+                        charac = "○ ";
+                        break;
+                    case 5:
+                        charac = "ⓧ ";
+                        break;
+                    case 8:
+                        charac = "█ ";
+                        break;
+                    default:
+                        break;
+                }
+                System.out.printf(charac);
             }
             System.out.printf("\n\r");
         }
@@ -116,57 +147,48 @@ public class SokobanUtil {
             throw new SokobanException("玩家数量不正确");
         }
         if (box != destination) {
-            throw new SokobanException(String.format("箱子:%d 目的地:%d 数量不符",box,destination));
+            throw new SokobanException(String.format("箱子:%d 目的地:%d 数量不符", box, destination));
         }
     }
+
+    //右，左，下，上四个方向
+    public static int[][] directs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
     /**
      * 将玩家可达区域用玩家填满，消除玩家位置带来的地图区别
      *
      * @throws SokobanException
      */
-    public static Queue<int[]> putPlayerOnAllReachable(int[][] map){
+    public static Queue<int[]> fillPlayerOnAllReachable(int[][] map) {
         int row = map.length;
         int col = map[0].length;
         Queue<int[]> playerQueue = new LinkedList<>();
-        Queue<int[]> possiblePlaySites = new LinkedList<>();
+        Queue<int[]> allPossibleQueue = new LinkedList<>();
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 if ((map[i][j] & PLAYER) > 0) {
-                    int[] site = {i,j};
+                    int[] site = {i, j};
                     playerQueue.offer(site);
-                    possiblePlaySites.offer(site);
+                    allPossibleQueue.offer(site);
                 }
             }
         }
-        while(playerQueue.size()>0){
+        while (playerQueue.size() > 0) {
             int[] site = playerQueue.poll();
-            if(putPlayWithBoolResult(map,row,col,site[0],site[1]-1)){
-                int[] newSite = {site[0],site[1]-1};
-                playerQueue.offer(newSite);
-                possiblePlaySites.offer(newSite);
-            }
-            if(putPlayWithBoolResult(map,row,col,site[0],site[1]+1)){
-                int[] newSite = {site[0],site[1]+1};
-                playerQueue.offer(newSite);
-                possiblePlaySites.offer(newSite);
-            }
-            if(putPlayWithBoolResult(map,row,col,site[0]-1,site[1])){
-                int[] newSite = {site[0]-1,site[1]};
-                playerQueue.offer(newSite);
-                possiblePlaySites.offer(newSite);
-            }
-            if(putPlayWithBoolResult(map,row,col,site[0]+1,site[1])){
-                int[] newSite = {site[0]+1,site[1]};
-                playerQueue.offer(newSite);
-                possiblePlaySites.offer(newSite);
+            for (int i = 0; i < directs.length; i++) {
+                if (putPlayWithBoolResult(map, row, col, site[0] + directs[i][0], site[1] + directs[i][1])) {
+                    int[] newSite = {site[0] + directs[i][0], site[1] + directs[i][1]};
+                    playerQueue.offer(newSite);
+                    allPossibleQueue.offer(newSite);
+                }
             }
         }
-        return possiblePlaySites;
+        return allPossibleQueue;
     }
 
     /**
      * 放置玩家，成功放置时返回true
+     *
      * @param map
      * @param mapRow
      * @param mapCol
@@ -174,14 +196,14 @@ public class SokobanUtil {
      * @param col
      * @return
      */
-    public static boolean putPlayWithBoolResult(int map[][], int mapRow, int mapCol, int row,int col){
-        if(col < 0 || col >= mapCol || row < 0 || row >= mapRow){
+    public static boolean putPlayWithBoolResult(int map[][], int mapRow, int mapCol, int row, int col) {
+        if (col < 0 || col >= mapCol || row < 0 || row >= mapRow) {
             return false;
-        }else if((map[row][col] & PLAYER)>0){
+        } else if ((map[row][col] & PLAYER) > 0) {
             return false;
-        }else if((map[row][col] & BOX)>0){
+        } else if ((map[row][col] & BOX) > 0) {
             return false;
-        }else if((map[row][col] & BLOCK)>0){
+        } else if ((map[row][col] & BLOCK) > 0) {
             return false;
         }
         map[row][col] = map[row][col] | PLAYER;
@@ -190,52 +212,99 @@ public class SokobanUtil {
 
     /**
      * 将箱子推动一格并生成一张新的克隆地图
+     *
      * @param oriMap
-     * @param playerRow
-     * @param playerCol
-     * @param boxRow
-     * @param boxCol
+     * @param boxIndex
+     * @param direct
      * @return
      */
-    public static int[][] pushBoxToCreateNewMap(int[][] oriMap, int playerRow, int playerCol, int boxRow, int boxCol){
+    public static SokobanMap pushBoxToCreateNewMap(SokobanMap oriMap, int boxIndex, int[] direct) throws SokobanException {
         //得到原地图的克隆
-        int[][] cloneMap = oriMap.clone();
-        int boxNewRow = boxRow + boxRow - playerRow;
-        int boxNewCol = boxCol = boxCol - playerCol;
-        oriMap[boxRow][boxCol] = (oriMap[boxRow][boxCol]&BOX_CLEAR)|PLAYER;
-        oriMap[boxNewRow][boxNewCol] = oriMap[boxNewRow][boxNewCol]|BOX;
+        SokobanMap cloneMap = null;
+        try {
+            cloneMap = oriMap.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            throw new SokobanException("clone map failed!");
+        }
+        int[] boxSite = cloneMap.getBoxSite().get(boxIndex);
+        int[][] map = cloneMap.getMap();
+        //设置玩家位置，为所推箱子位置
+        cloneMap.setPlayerSite(boxSite[0], boxSite[1]);
+        //从原箱子位置上删除箱子，增加玩家
+        map[boxSite[0]][boxSite[1]] = (map[boxSite[0]][boxSite[1]] & BOX_CLEAR) | PLAYER;
+        //设置箱子位置至下一位置
+        boxSite[0] += direct[0];
+        boxSite[0] += direct[1];
+        //在新箱子位置上增加箱子
+        map[boxSite[0]][boxSite[1]] = map[boxSite[0]][boxSite[1]] | BOX;
         return cloneMap;
     }
 
     /**
      * 清空列表中所有位置上的玩家
+     *
      * @param map
      * @param playerSites
      */
-    public static void clearAndReputPlayer(int[][] map, Queue<int[]> playerSites){
-        for (int[] site:playerSites) {
+    public static void clearAndReputPlayer(int[][] map, Queue<int[]> playerSites) {
+        for (int[] site : playerSites) {
             map[site[0]][site[1]] = map[site[0]][site[1]] & PLAYER_CLEAR;
         }
     }
 
     /**
      * 判断某点箱子是否可达
+     *
      * @param map
      * @param mapRow
      * @param mapCol
-     * @param row
-     * @param col
+     * @param boxSite
+     * @param direct
      * @return
      */
-    public static boolean boxReachable(int map[][], int mapRow, int mapCol, int row,int col){
-        if(col < 0 || col >= mapCol || row < 0 || row >= mapRow){
+    public static boolean boxReachable(int map[][], int mapRow, int mapCol, int[] boxSite, int[] direct) {
+        //判断移动反方向是否有玩家
+        int[] playerSite = {boxSite[0]-direct[0],boxSite[1]-direct[1]};
+        if(!hasPlayer(map[playerSite[0]][playerSite[1]])){
             return false;
-        }else if((map[row][col] & BOX)>0){
+        }
+        int row = boxSite[0]+direct[0];
+        int col = boxSite[1]+direct[1];
+        if (col < 0 || col >= mapCol || row < 0 || row >= mapRow) {
             return false;
-        }else if((map[row][col] & BLOCK)>0){
+        } else if ((map[row][col] & BOX) > 0) {
+            return false;
+        } else if ((map[row][col] & BLOCK) > 0) {
             return false;
         }
         return true;
+    }
+
+    public static String mapToString(int[][] map) {
+        int row = map.length;
+        int col = map[0].length;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                sb.append(map[i][j]);
+            }
+        }
+        return sb.toString();
+    }
+
+
+    public static boolean hasPlayer(int element) {
+        return (element & PLAYER) > 0;
+    }
+    public static boolean hasBox(int element) {
+        return (element & BOX) > 0;
+    }
+    public static boolean hasDestination(int element) {
+        return (element & DESTINATION) > 0;
+    }
+    public static boolean hasBlock(int element) {
+        return (element & BLOCK) > 0;
     }
 
 }

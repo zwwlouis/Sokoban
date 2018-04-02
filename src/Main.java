@@ -1,4 +1,6 @@
 import model.SokobanException;
+import model.SokobanMap;
+import util.SokobanSolver;
 import util.SokobanUtil;
 
 public class Main {
@@ -11,12 +13,22 @@ public class Main {
                                     "8888888";
     public static void main(String[] args) {
         System.out.println("Hello World!");
+
+        //此处需要保证得到map数组是真实有效的
         int[][] map = readMapFromString(stage);
         SokobanUtil.printMap(map);
-        SokobanUtil.putPlayerOnAllReachable(map);
-        SokobanUtil.printMap(map);
-        System.out.println();
-
+        SokobanMap sokobanMap = new SokobanMap(map);
+        SokobanSolver solver = new SokobanSolver(sokobanMap);
+        try {
+            boolean result = solver.solveMap(sokobanMap);
+            if(result){
+                System.out.println("solve complete!");
+            }
+        } catch (SokobanException e) {
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static int[][] readMapFromString(String mapStr){
