@@ -16,7 +16,7 @@ public class Main {
 
         //此处需要保证得到map数组是真实有效的
         int[][] map = readMapFromString(stage);
-        SokobanUtil.printMap(map);
+        SokobanUtil.specialPrintMap(map);
         SokobanMap sokobanMap = new SokobanMap(map);
         SokobanSolver solver = new SokobanSolver(sokobanMap);
         try {

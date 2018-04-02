@@ -8,12 +8,14 @@ import java.util.List;
 public class SokobanMap implements Cloneable{
     private int[][] map;
     private int[] playerSite;
-    private List<int[]> boxSite;
+    private List<int[]> boxSites;
+    private int row;
+    private int col;
     public SokobanMap(){
-
+        boxSites = new ArrayList<>();
     }
     public SokobanMap(int[][] map){
-        boxSite = new ArrayList<>();
+        boxSites = new ArrayList<>();
         setMap(map);
         checkMap(map);
     }
@@ -26,15 +28,15 @@ public class SokobanMap implements Cloneable{
         this.map = map;
     }
     public void checkMap(int[][] map){
-        int row = map.length;
-        int col = map[0].length;
+        this.row = map.length;
+        this.col = map[0].length;
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 if((map[i][j]& SokobanUtil.PLAYER) > 0){
                     playerSite = new int[]{i,j};
                 }
                 if((map[i][j]& SokobanUtil.BOX) > 0){
-                    boxSite.add(new int[]{i,j});
+                    boxSites.add(new int[]{i,j});
                 }
             }
         }
@@ -43,9 +45,19 @@ public class SokobanMap implements Cloneable{
     @Override
     public SokobanMap clone() throws CloneNotSupportedException {
         SokobanMap sokobanMap = new SokobanMap();
-        sokobanMap.setBoxSite(new ArrayList<>(this.boxSite));
+        List<int[]> newBoxSites = new ArrayList<>();
+        for (int[] boxSite:boxSites) {
+            newBoxSites.add(boxSite.clone());
+        }
+        sokobanMap.setRow(row);
+        sokobanMap.setCol(col);
+        sokobanMap.setBoxSites(newBoxSites);
         sokobanMap.setPlayerSite(this.playerSite.clone());
-        sokobanMap.setMap(this.map.clone());
+        int[][] newMap = new int[row][];
+        for (int i = 0; i < row; i++) {
+            newMap[i] = map[i].clone();
+        }
+        sokobanMap.setMap(newMap);
         return sokobanMap;
     }
 
@@ -62,11 +74,27 @@ public class SokobanMap implements Cloneable{
         this.playerSite[1] = col;
     }
 
-    public List<int[]> getBoxSite() {
-        return boxSite;
+    public List<int[]> getBoxSites() {
+        return boxSites;
     }
 
-    public void setBoxSite(List<int[]> boxSite) {
-        this.boxSite = boxSite;
+    public void setBoxSites(List<int[]> boxSites) {
+        this.boxSites = boxSites;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
     }
 }

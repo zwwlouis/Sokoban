@@ -5,7 +5,6 @@ import model.SokobanException;
 import model.SokobanMap;
 
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 public class SokobanUtil {
@@ -86,9 +85,8 @@ public class SokobanUtil {
         map[row][col] = map[row][col] | DESTINATION;
     }
 
-    public static void printMap(int[][] map) {
+    public static void specialPrintMap(int[][] map) {
         System.out.println("--------------*** 关卡图 ***------------------");
-        System.out.println("1-目标点  2 - 箱子  3-箱子&目标点  4-人  5-人&目标点  8-墙壁");
         int row = map.length;
         int col = map[0].length;
         for (int i = 0; i < row; i++) {
@@ -120,6 +118,19 @@ public class SokobanUtil {
                         break;
                 }
                 System.out.printf(charac);
+            }
+            System.out.printf("\n\r");
+        }
+    }
+
+    public static void printMap(int[][] map) {
+        System.out.println("--------------*** 关卡图 ***------------------");
+        System.out.println("1-目标点  2 - 箱子  3-箱子&目标点  4-人  5-人&目标点  8-墙壁");
+        int row = map.length;
+        int col = map[0].length;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                System.out.printf(map[i][j]+"  ");
             }
             System.out.printf("\n\r");
         }
@@ -227,7 +238,7 @@ public class SokobanUtil {
             e.printStackTrace();
             throw new SokobanException("clone map failed!");
         }
-        int[] boxSite = cloneMap.getBoxSite().get(boxIndex);
+        int[] boxSite = cloneMap.getBoxSites().get(boxIndex);
         int[][] map = cloneMap.getMap();
         //设置玩家位置，为所推箱子位置
         cloneMap.setPlayerSite(boxSite[0], boxSite[1]);

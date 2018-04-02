@@ -27,10 +27,14 @@ public class SokobanSolver {
     }
 
     public boolean solveMap(SokobanMap sokobanMap) throws SokobanException {
+        //FIXME
+        SokobanUtil.printMap(sokobanMap.getMap());
         //首先对地图做转换，将玩家填满所有可能到达的区域
         Queue<int[]> allPossiblePlayer = SokobanUtil.fillPlayerOnAllReachable(sokobanMap.getMap());
+        //FIXME
+        SokobanUtil.printMap(sokobanMap.getMap());
         //获取所有箱子的位置
-        List<int[]> boxList = sokobanMap.getBoxSite();
+        List<int[]> boxList = sokobanMap.getBoxSites();
         for (int i = 0; i < boxList.size(); i++) {
             int[] boxSite = boxList.get(i);
             for (int j = 0; j < directs.length; j++) {
@@ -49,7 +53,7 @@ public class SokobanSolver {
                         }
                         //清空场上多余的玩家
                         SokobanUtil.clearAndReputPlayer(newMap.getMap(),allPossiblePlayer);
-                        SokobanUtil.printMap(newMap.getMap());
+                        SokobanUtil.specialPrintMap(newMap.getMap());
                         //递归调用函数
                         boolean result = solveMap(newMap);
                         if(result){
@@ -86,7 +90,7 @@ public class SokobanSolver {
      * @return
      */
     private boolean isComplete(SokobanMap sokobanMap){
-        List<int[]> boxList = sokobanMap.getBoxSite();
+        List<int[]> boxList = sokobanMap.getBoxSites();
         int[][] map = sokobanMap.getMap();
         for (int i = 0; i < boxList.size(); i++) {
             int[] boxSite = boxList.get(i);
@@ -97,7 +101,5 @@ public class SokobanSolver {
         }
         return true;
     }
-
-
 
 }
