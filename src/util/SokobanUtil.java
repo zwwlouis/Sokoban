@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-public class StageUtil {
+public class SokobanUtil {
 
 
     /**
@@ -20,43 +20,6 @@ public class StageUtil {
      * 5 - 人&目标点
      * 8 - 墙壁
      * **/
-
-
-    public static int[][] genStage(String content) throws SokobanException {
-        String[] contentArray = content.split("\n");
-        int row = contentArray.length;
-        int col = contentArray[0].length();
-        int[][] stage = new int[row][col];
-
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                stage[i][j] = contentArray[i].charAt(j)-'0';
-                if(stage[i][j]>8||stage[i][j]<0){
-                    throw new SokobanException("value error");
-                }
-            }
-        }
-        return stage;
-    }
-
-
-        /**
-         * 石头
-         * 三角形石头： {type: 'stone', state: 'tri'}
-         * 方形石头： {type: 'stone', state: 'rect'}
-         * 树桩：{type: 'wood', state: 'normal'}
-         * 人：{type: 'girl', state: 'front1'}
-         * 费列罗：{type: 'ferrero', state: 'normal'}
-         * 目标地点：{type: 'des', state: 'light'}.
-         * *
-         * 转换后的格式:
-         * 地图格子  0-目标点  1-箱子  2-人  3-墙壁
-         * 0 - 空  * 1 - 目标点  * 2 - 箱子  * 3 - 箱子&目标点  * 4 - 人  * 5 - 人&目标点  * 8 - 墙壁
-         *
-         * @return
-         */
-
-
     private final static int DESTINATION = 0b0001;
     private final static int BOX = 0b0010;
     private final static int PLAYER = 0b0100;
@@ -128,6 +91,32 @@ public class StageUtil {
                 System.out.printf(map[i][j]+"  ");
             }
             System.out.printf("\n\r");
+        }
+    }
+
+    /**
+     * 根据元素数量基础性验证地图有效性
+     *
+     * @param map
+     * @throws SokobanException
+     */
+    public static void baseValidateMap(int[][] map) throws SokobanException {
+        int row = map.length;
+        int col = map[0].length;
+        int player = 0, block = 0, destination = 0, box = 0;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                player += (map[i][j] & PLAYER) >> 2;
+                block += (map[i][j] & BLOCK) >> 3;
+                destination += map[i][j] & DESTINATION;
+                box += (map[i][j] & BOX) >> 1;
+            }
+        }
+        if (player != 1) {
+            throw new SokobanException("玩家数量不正确");
+        }
+        if (box != destination) {
+            throw new SokobanException(String.format("箱子:%d 目的地:%d 数量不符",box,destination));
         }
     }
 
