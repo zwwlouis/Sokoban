@@ -11,6 +11,7 @@ public class SokobanMap implements Cloneable{
     private List<int[]> boxSites;
     private int row;
     private int col;
+    private static long cloneTime;
     public SokobanMap(){
         boxSites = new ArrayList<>();
     }
@@ -44,9 +45,10 @@ public class SokobanMap implements Cloneable{
 
     @Override
     public SokobanMap clone() throws CloneNotSupportedException {
+        long start = System.currentTimeMillis();
         SokobanMap sokobanMap = new SokobanMap();
         List<int[]> newBoxSites = new ArrayList<>();
-        for (int[] boxSite:boxSites) {
+        for (int[] boxSite:this.boxSites) {
             newBoxSites.add(boxSite.clone());
         }
         sokobanMap.setRow(row);
@@ -55,9 +57,10 @@ public class SokobanMap implements Cloneable{
         sokobanMap.setPlayerSite(this.playerSite.clone());
         int[][] newMap = new int[row][];
         for (int i = 0; i < row; i++) {
-            newMap[i] = map[i].clone();
+            newMap[i] = this.map[i].clone();
         }
         sokobanMap.setMap(newMap);
+        cloneTime += System.currentTimeMillis() - start;
         return sokobanMap;
     }
 
@@ -96,5 +99,8 @@ public class SokobanMap implements Cloneable{
 
     public void setCol(int col) {
         this.col = col;
+    }
+    public static long getCloneTime(){
+        return cloneTime;
     }
 }

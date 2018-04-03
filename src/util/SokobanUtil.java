@@ -92,12 +92,12 @@ public class SokobanUtil {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 String charac = "0";
-                switch (map[i][j]){
+                switch (map[i][j]) {
                     case 0:
-                        charac = "  ";
+                        charac = "   ";
                         break;
                     case 1:
-                        charac = "x ";
+                        charac = "× ";
                         break;
                     case 2:
                         charac = "□ ";
@@ -130,7 +130,7 @@ public class SokobanUtil {
         int col = map[0].length;
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
-                System.out.printf(map[i][j]+"  ");
+                System.out.printf(map[i][j] + "  ");
             }
             System.out.printf("\n\r");
         }
@@ -246,7 +246,7 @@ public class SokobanUtil {
         map[boxSite[0]][boxSite[1]] = (map[boxSite[0]][boxSite[1]] & BOX_CLEAR) | PLAYER;
         //设置箱子位置至下一位置
         boxSite[0] += direct[0];
-        boxSite[0] += direct[1];
+        boxSite[1] += direct[1];
         //在新箱子位置上增加箱子
         map[boxSite[0]][boxSite[1]] = map[boxSite[0]][boxSite[1]] | BOX;
         return cloneMap;
@@ -265,23 +265,18 @@ public class SokobanUtil {
     }
 
     /**
-     * 判断某点箱子是否可达
-     *
-     * @param map
-     * @param mapRow
-     * @param mapCol
+     *  判断某点箱子是否可达
+     * @param sokobanMap
      * @param boxSite
      * @param direct
      * @return
      */
-    public static boolean boxReachable(int map[][], int mapRow, int mapCol, int[] boxSite, int[] direct) {
-        //判断移动反方向是否有玩家
-        int[] playerSite = {boxSite[0]-direct[0],boxSite[1]-direct[1]};
-        if(!hasPlayer(map[playerSite[0]][playerSite[1]])){
-            return false;
-        }
-        int row = boxSite[0]+direct[0];
-        int col = boxSite[1]+direct[1];
+    public static boolean boxReachable(SokobanMap sokobanMap, int[] boxSite, int[] direct) {
+        int[][] map = sokobanMap.getMap();
+        int mapRow = sokobanMap.getRow();
+        int mapCol = sokobanMap.getCol();
+        int row = boxSite[0] + direct[0];
+        int col = boxSite[1] + direct[1];
         if (col < 0 || col >= mapCol || row < 0 || row >= mapRow) {
             return false;
         } else if ((map[row][col] & BOX) > 0) {
@@ -289,8 +284,110 @@ public class SokobanUtil {
         } else if ((map[row][col] & BLOCK) > 0) {
             return false;
         }
+        //判断移动反方向是否有玩家
+        int[] playerSite = {boxSite[0] - direct[0], boxSite[1] - direct[1]};
+        if (playerSite[0] < 0 || playerSite[0] >= mapRow || playerSite[1] < 0 || playerSite[1] >= mapCol) {
+            return false;
+        } else if (!hasPlayer(map[playerSite[0]][playerSite[1]])) {
+            return false;
+        }
+//        //判断将要移动到的位置是否会造成箱子卡住
+//        if(isBoxStucked(sokobanMap,new int[]{row,col})){
+//            return false;
+//        }
         return true;
     }
+
+    /**
+     * 检查箱子是否卡住（产生明显的无解型）
+     *
+     * @param sokobanMap
+     * @param boxSite
+     * @return
+     */
+    public static boolean isBoxStucked(SokobanMap sokobanMap, int[] boxSite) {
+        int[][] map = sokobanMap.getMap();
+        if (hasDestination(map[boxSite[0]][boxSite[1]])) {
+            return false;
+        }
+        int mapRow = sokobanMap.getRow();
+        int mapCol = sokobanMap.getCol();
+        int[] directDect = new int[4];
+        int blockNum = 0;
+        for (int i = 0; i < directs.length; i++) {
+            int newSiteRow = boxSite[0] + directs[i][0];
+            int newSiteCol = boxSite[1] + directs[i][1];
+            if (newSiteRow < 0 || newSiteRow >= mapCol || newSiteCol < 0 || newSiteCol >= mapRow) {
+                directDect[i] = 1;
+                blockNum++;
+            }
+        }
+        if (blockNum > 2) {
+            //如果三个方向都有墙则肯定被卡住
+            return true;
+        } else if (blockNum == 2 && (directDect[0] * directDect[1]) == 0 && (directDect[2] * directDect[3]) == 0) {
+            //如果有墙的两个方向相邻，则被卡住
+            return true;
+        } else if (blockNum == 1) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * 检查地图边缘上目标点和箱子数目是否相同
+     * @param sokobanMap
+     * @param boxSite
+     * @param direct
+     * @return
+     */
+    public static boolean ifBoxAndDesEqualOnEdge(SokobanMap sokobanMap, int[] boxSite, int[] direct) {
+        boolean forword = true;
+        boolean backword = true;
+        int[][] map = sokobanMap.getMap();
+        int boxNum = 0, desNum = 0;
+        int i = 0;
+        boxNum += 1;
+        desNum += map[boxSite[0]][boxSite[1]] & DESTINATION;
+        while (forword) {
+            i++;
+            int[] newSite = {boxSite[0] + i * direct[0], boxSite[0] + i * direct[0]};
+            if (!isSiteOnMap(sokobanMap, newSite) || hasBlock(map[newSite[0]][newSite[1]])) {
+                forword = false;
+                continue;
+            } else {
+                boxNum += (map[newSite[0]][newSite[1]] & BOX) >> 1;
+                desNum += map[newSite[0]][newSite[1]] & DESTINATION;
+            }
+        }
+        while (backword) {
+            i++;
+            int[] newSite = {boxSite[0] - i * direct[0], boxSite[0] - i * direct[0]};
+            if (!isSiteOnMap(sokobanMap, newSite) || hasBlock(map[newSite[0]][newSite[1]])) {
+                backword = false;
+                continue;
+            } else {
+                boxNum += (map[newSite[0]][newSite[1]] & BOX) >> 1;
+                desNum += map[newSite[0]][newSite[1]] & DESTINATION;
+            }
+        }
+        return boxNum == desNum;
+    }
+
+    /**
+     * 判断目标位置是否在地图上
+     *
+     * @param sokobanMap
+     * @param site
+     * @return
+     */
+    public static boolean isSiteOnMap(SokobanMap sokobanMap, int[] site) {
+        if (site[0] < 0 || site[0] >= sokobanMap.getRow() || site[1] < 0 || site[1] >= sokobanMap.getCol()) {
+            return false;
+        }
+        return true;
+    }
+
 
     public static String mapToString(int[][] map) {
         int row = map.length;
@@ -308,12 +405,15 @@ public class SokobanUtil {
     public static boolean hasPlayer(int element) {
         return (element & PLAYER) > 0;
     }
+
     public static boolean hasBox(int element) {
         return (element & BOX) > 0;
     }
+
     public static boolean hasDestination(int element) {
         return (element & DESTINATION) > 0;
     }
+
     public static boolean hasBlock(int element) {
         return (element & BLOCK) > 0;
     }

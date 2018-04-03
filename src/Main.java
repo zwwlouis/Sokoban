@@ -16,13 +16,15 @@ public class Main {
 
         //此处需要保证得到map数组是真实有效的
         int[][] map = readMapFromString(stage);
-        SokobanUtil.specialPrintMap(map);
+//        SokobanUtil.specialPrintMap(map);
         SokobanMap sokobanMap = new SokobanMap(map);
-        SokobanSolver solver = new SokobanSolver(sokobanMap);
+        SokobanSolver solver = new SokobanSolver();
         try {
-            boolean result = solver.solveMap(sokobanMap);
+            boolean result = solver.solveMapWithTimeCount(sokobanMap);
             if(result){
                 System.out.println("solve complete!");
+                System.out.println(solver.getSolveStatus());
+                solver.printRoute();
             }
         } catch (SokobanException e) {
             e.printStackTrace();
