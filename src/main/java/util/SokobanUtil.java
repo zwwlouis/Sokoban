@@ -11,7 +11,7 @@ public class SokobanUtil {
 
 
     /**
-     * 地图格子  0-目标点  1-箱子  2-人  3-墙壁
+     * 地图格子  0-目标点  1-箱子  2-人  3-墙壁 4-是否为死亡点
      * 0 - 空
      * 1 - 目标点
      * 2 - 箱子
@@ -24,10 +24,14 @@ public class SokobanUtil {
     public final static int BOX = 0b0010;
     public final static int PLAYER = 0b0100;
     public final static int BLOCK = 0b1000;
-    public final static int DESTINATION_CLEAR = 0b1110;
-    public final static int BOX_CLEAR = 0b1101;
-    public final static int PLAYER_CLEAR = 0b1011;
-    public final static int BLOCK_CLEAR = 0b0111;
+
+    public final static int DESTINATION_CLEAR = 0b11110;
+    public final static int BOX_CLEAR = 0b11101;
+    public final static int PLAYER_CLEAR = 0b11011;
+    public final static int BLOCK_CLEAR = 0b10111;
+
+    public final static int DEAD_POINT = 0b10000;
+    public final static int NORMAL_PART_MASK = 0b1111;
 
     /**
      * 在单元格上放置玩家
@@ -85,6 +89,10 @@ public class SokobanUtil {
         map[row][col] = map[row][col] | DESTINATION;
     }
 
+    public static void putDeadPoint(int[][] map, int row, int col) throws SokobanException {
+        map[row][col] = map[row][col] | DEAD_POINT;
+    }
+
     public static void specialPrintMap(int[][] map) {
         System.out.println("--------------*** 关卡图 ***------------------");
         int row = map.length;
@@ -92,7 +100,8 @@ public class SokobanUtil {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 String charac = "0";
-                switch (map[i][j]) {
+                int unit = map[i][j] & NORMAL_PART_MASK;
+                switch (unit) {
                     case 0:
                         charac = "   ";
                         break;
@@ -130,7 +139,7 @@ public class SokobanUtil {
         int col = map[0].length;
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
-                System.out.printf(map[i][j] + "  ");
+                System.out.printf((map[i][j]&NORMAL_PART_MASK )+ "  ");
             }
             System.out.printf("\n\r");
         }
@@ -275,13 +284,13 @@ public class SokobanUtil {
         int[][] map = sokobanMap.getMap();
         int mapRow = sokobanMap.getRow();
         int mapCol = sokobanMap.getCol();
-        int row = boxSite[0] + direct[0];
-        int col = boxSite[1] + direct[1];
-        if (col < 0 || col >= mapCol || row < 0 || row >= mapRow) {
+        int nextRow = boxSite[0] + direct[0];
+        int nextCol = boxSite[1] + direct[1];
+        if (nextCol < 0 || nextCol >= mapCol || nextRow < 0 || nextRow >= mapRow) {
             return false;
-        } else if ((map[row][col] & BOX) > 0) {
+        } else if ((map[nextRow][nextCol] & BOX) > 0) {
             return false;
-        } else if ((map[row][col] & BLOCK) > 0) {
+        } else if ((map[nextRow][nextCol] & BLOCK) > 0) {
             return false;
         }
         //判断移动反方向是否有玩家
@@ -291,8 +300,13 @@ public class SokobanUtil {
         } else if (!hasPlayer(map[playerSite[0]][playerSite[1]])) {
             return false;
         }
-//        //判断将要移动到的位置是否会造成箱子卡住
-//        if(isBoxStucked(sokobanMap,new int[]{row,col})){
+        //打印地图
+//        SokobanUtil.specialPrintMap(sokobanMap.getMap());
+        //判断将要移动到的位置是否会造成箱子卡住
+        if(hasDeadPoint(map[nextRow][nextCol])){
+            return false;
+        }
+//        if(isBoxStucked(sokobanMap,new int[]{nextRow,nextCol})){
 //            return false;
 //        }
         return true;
@@ -318,6 +332,9 @@ public class SokobanUtil {
             int newSiteRow = boxSite[0] + directs[i][0];
             int newSiteCol = boxSite[1] + directs[i][1];
             if (newSiteRow < 0 || newSiteRow >= mapCol || newSiteCol < 0 || newSiteCol >= mapRow) {
+                directDect[i] = 1;
+                blockNum++;
+            } else if(hasBlock(map[newSiteRow][newSiteCol])){
                 directDect[i] = 1;
                 blockNum++;
             }
@@ -417,5 +434,10 @@ public class SokobanUtil {
     public static boolean hasBlock(int element) {
         return (element & BLOCK) > 0;
     }
+    public static boolean hasDeadPoint(int element) {
+        return (element & DEAD_POINT) > 0;
+    }
+
+
 
 }

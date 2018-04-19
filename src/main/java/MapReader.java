@@ -10,8 +10,18 @@ import util.SokobanUtil;
  * @time 10:18.
  */
 public class MapReader {
-    public static String testMap = " ####\n" + "##  #####\n" + "#  $  $ #\n" + "# $*..* ##\n" + "#  *$$.  #\n" + "#@ *.*.  #\n" + "####   ###\n" + "   #####";
-
+//    public static String testMap = " ####\n" + "##  #####\n" + "#  $  $ #\n" + "# $*..* ##\n" + "#  *$$.  #\n" + "#@ *.*.  #\n" + "####   ###\n" + "   #####";
+    public static String fillTheHall =  "  #####\n" +
+                                        "  #%%%#\n" +
+                                        "  #   #\n" +
+                                        "### * ###\n" +
+                                        "#% *.* %#\n" +
+                                        "#% *.* %#\n" +
+                                        "#% *.* %#\n" +
+                                        "###$$$###\n" +
+                                        "  #%^%#\n" +
+                                        "  #####";
+//    public static String testMap ="############\n" + "#..  #     ###\n" + "#..  # $  $  #\n" + "#..  #$####  #\n" + "#..    @ ##  #\n" + "#..  # #  $ ##\n" + "###### ##$ $ #\n" + "  # $  $ $ $ #\n" + "  #    #     #\n" + "  ############";
     /**
      * read from symbol map
      * Wall # → 8
@@ -21,7 +31,8 @@ public class MapReader {
      * Box on goal square * → 3
      * Goal square .→ 1
      * Floor (space)→ 0
-     *
+     * Dead point % → 16
+     * Player on dead point ^ → 20
      * @param mString
      * @return
      */
@@ -35,7 +46,7 @@ public class MapReader {
         int mw = 0;
         for (int i = 0; i < mh; i++) {
             int width = mapArray[i].length();
-            mw = width > mh ? width : mw;
+            mw = width > mw ? width : mw;
         }
         int[][] map = new int[mh][mw];
         for (int i = 0; i < mh; i++) {
@@ -61,6 +72,13 @@ public class MapReader {
                     case '.':
                         SokobanUtil.putDestination(map,i,j);
                         break;
+                    case '%':
+                        SokobanUtil.putDeadPoint(map,i,j);
+                        break;
+                    case '^':
+                        SokobanUtil.putDeadPoint(map,i,j);
+                        SokobanUtil.putPlayer(map,i,j);
+                        break;
                     case ' ':
                         map[i][j] = 0;
                         break;
@@ -75,7 +93,7 @@ public class MapReader {
 
     public static void main(String[] args) {
         try {
-            int[][] map = readFromSymbol(testMap);
+            int[][] map = readFromSymbol(fillTheHall);
             SokobanUtil.printMap(map);
             SokobanMap sokobanMap = new SokobanMap(map);
             SokobanSolver solver = new SokobanSolver();

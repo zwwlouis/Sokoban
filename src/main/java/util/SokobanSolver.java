@@ -37,11 +37,12 @@ public class SokobanSolver {
 
     public boolean solveMap(SokobanMap sokobanMap) throws SokobanException {
         totalRecur++;
-        if(totalRecur%1000 == 0){
-            System.out.println("第"+totalRecur+"次运算");
-            if(totalRecur > 9999999){
-                throw new SokobanException("题目过于复杂，超过求解时间");
-            }
+        if(totalRecur%100000 == 0){
+            System.out.println("第"+totalRecur+"次运算  深度 = "+curRecur);
+//            SokobanUtil.specialPrintMap(sokobanMap.getMap());
+//            if(totalRecur > 999999999){
+//                throw new SokobanException("题目过于复杂，超过求解时间");
+//            }
         }
         curRecur++;
         if(curRecur > maxRecurLimit){
@@ -52,13 +53,13 @@ public class SokobanSolver {
             maxRecur = curRecur;
         }
         //打印地图
-        //        SokobanUtil.specialPrintMap(sokobanMap.getMap());
+//                SokobanUtil.specialPrintMap(sokobanMap.getMap());
         //        SokobanUtil.printMap(sokobanMap.getMap());
         //首先对地图做转换，将玩家填满所有可能到达的区域
         Queue<int[]> allPossiblePlayer = SokobanUtil.fillPlayerOnAllReachable(sokobanMap.getMap());
         //判断该地图是否之前出现过
         if (!hasMap(sokobanMap.getMap())) {
-            //        SokobanUtil.printMap(sokobanMap.getMap());
+//                    SokobanUtil.specialPrintMap(sokobanMap.getMap());
             //获取所有箱子的位置
             List<int[]> boxList = sokobanMap.getBoxSites();
             for (int i = 0; i < boxList.size(); i++) {
@@ -114,7 +115,17 @@ public class SokobanSolver {
         int stepNum = stepList.length;
         for (int i = 0; i < stepNum; i++) {
             int[] step = (int[]) stepList[i];
-            System.out.println(String.format("%s行,%s列  向%s移动", step[0], step[1], getDirectWord(step[2], step[3])));
+            System.out.println(String.format("%s行,%s列  向%s移动", step[0]+1, step[1]+1, getDirectWord(step[2], step[3])));
+        }
+        System.out.println(String.format("总步数 %d步", stepNum));
+    }
+
+    public void printRouteMap() {
+        Object[] stepList = solveSteps.toArray();
+        int stepNum = stepList.length;
+        for (int i = 0; i < stepNum; i++) {
+            int[] step = (int[]) stepList[i];
+            System.out.println(String.format("%s行,%s列  向%s移动", step[0]+1, step[1]+1, getDirectWord(step[2], step[3])));
         }
         System.out.println(String.format("总步数 %d步", stepNum));
     }
