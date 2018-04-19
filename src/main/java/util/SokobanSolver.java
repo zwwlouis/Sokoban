@@ -13,7 +13,7 @@ public class SokobanSolver {
     private long maxRecur;
     private long totalRecur;
     private long curRecur;
-    private static long maxRecurLimit = 500;
+    private static long maxRecurLimit = 50;
     //右，左，下，上四个方向
     public static int[][] directs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
@@ -37,12 +37,12 @@ public class SokobanSolver {
 
     public boolean solveMap(SokobanMap sokobanMap) throws SokobanException {
         totalRecur++;
-//        if(totalRecur%1000 == 0){
-//            System.out.println("第"+totalRecur+"次运算");
-//            if(totalRecur > 9999999){
-//                throw new SokobanException("题目过于复杂，超过求解时间");
-//            }
-//        }
+        if(totalRecur%1000 == 0){
+            System.out.println("第"+totalRecur+"次运算");
+            if(totalRecur > 9999999){
+                throw new SokobanException("题目过于复杂，超过求解时间");
+            }
+        }
         curRecur++;
         if(curRecur > maxRecurLimit){
             curRecur -= 1;
