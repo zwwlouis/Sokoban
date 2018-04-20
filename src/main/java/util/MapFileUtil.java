@@ -49,16 +49,11 @@ public class MapFileUtil {
 
 
     public static void main(String[] args) {
-        try {
-            List<SymbolMap> stageList = readMapsFromFile("100Boxes.txt");
-            for (SymbolMap symbolMap : stageList) {
-                System.out.println("name: " + symbolMap.getName());
-                System.out.println(symbolMap.getContent());
-                System.out.println("----------------------------");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        List<SymbolMap> stageList = readMapsFromFile("100Boxes.txt");
+        for (SymbolMap symbolMap : stageList) {
+            System.out.println("name: " + symbolMap.getName());
+            System.out.println(symbolMap.getContent());
+            System.out.println("----------------------------");
         }
     }
 
