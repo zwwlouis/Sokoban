@@ -21,6 +21,17 @@ public class MapReader {
                                         "###$$$###\n" +
                                         "  #%^%#\n" +
                                         "  #####";
+
+    public static String connection =   "   ####\n" +
+                                        "####%%##\n" +
+                                        "#%  $ %#\n" +
+                                        "#% *** #\n" +
+                                        "#% . . ##\n" +
+                                        "##%* * %#\n" +
+                                        " ##*** %#\n" +
+                                        "  # $ ###\n" +
+                                        "  #%^%#\n" +
+                                        "  #####";
 //    public static String testMap ="############\n" + "#..  #     ###\n" + "#..  # $  $  #\n" + "#..  #$####  #\n" + "#..    @ ##  #\n" + "#..  # #  $ ##\n" + "###### ##$ $ #\n" + "  # $  $ $ $ #\n" + "  #    #     #\n" + "  ############";
     /**
      * read from symbol map
@@ -93,7 +104,7 @@ public class MapReader {
 
     public static void main(String[] args) {
         try {
-            int[][] map = readFromSymbol(fillTheHall);
+            int[][] map = readFromSymbol(connection);
             SokobanUtil.printMap(map);
             SokobanMap sokobanMap = new SokobanMap(map);
             SokobanSolver solver = new SokobanSolver();
