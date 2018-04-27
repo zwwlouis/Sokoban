@@ -7,6 +7,16 @@ package model;
  */
 public class SymbolMap {
     String name;
+    /**
+     * 以符号表示的地图文字
+     * Wall # → 8
+     * Player @ → 4
+     * Player on goal square + → 5
+     * Box $ → 2
+     * Box on goal square * → 3
+     * Goal square .→ 1
+     * Floor (space)→ 0
+     */
     String content;
     public SymbolMap() {
     }

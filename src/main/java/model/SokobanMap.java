@@ -44,7 +44,7 @@ public class SokobanMap implements Cloneable{
     }
 
     @Override
-    public SokobanMap clone() throws CloneNotSupportedException {
+    public SokobanMap clone(){
         long start = System.currentTimeMillis();
         SokobanMap sokobanMap = new SokobanMap();
         List<int[]> newBoxSites = new ArrayList<>();
@@ -76,6 +76,79 @@ public class SokobanMap implements Cloneable{
         this.playerSite[0] = row;
         this.playerSite[1] = col;
     }
+
+    /**
+     * 得到地图单元格数值
+     * @param site
+     * @return
+     */
+    public int getCell(int[] site){
+        return map[site[0]][site[1]];
+    }
+
+
+    public static void main(String[] args) {
+        SokobanMap map = new SokobanMap();
+        int[] site = map.getPlayerSite();
+        System.out.println(site);
+    }
+
+
+
+
+
+    /**
+     * 在单元格上放置玩家
+     * @param row
+     * @param col
+     */
+    public void putPlayer(int row, int col) throws SokobanException {
+        if ((map[row][col] & SokobanUtil.BOX) > 0 || (map[row][col] & SokobanUtil.BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置玩家 %d行，%d列 已经存在其他物体", row, col));
+        }
+        map[row][col] = map[row][col] | SokobanUtil.PLAYER;
+    }
+
+    /**
+     * 在单元格上放置箱子
+     * @param row
+     * @param col
+     */
+    public void putBox(int row, int col) throws SokobanException {
+        if ((map[row][col] & SokobanUtil.PLAYER) > 0 || (map[row][col] & SokobanUtil.BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置箱子 %d行，%d列 已经存在其他物体", row, col));
+        }
+        map[row][col] = map[row][col] | SokobanUtil.BOX;
+    }
+
+    /**
+     * 在单元格上放置障碍物
+     * @param row
+     * @param col
+     */
+    public void putBlock(int row, int col) throws SokobanException {
+        if ((map[row][col] & SokobanUtil.PLAYER) > 0 || (map[row][col] & SokobanUtil.BOX) > 0 || (map[row][col] & SokobanUtil.DESTINATION) > 0) {
+            throw new SokobanException(String.format("无法放置障碍 %d行，%d列 已经存在其他物体", row, col));
+        }
+        map[row][col] = map[row][col] | SokobanUtil.BLOCK;
+    }
+
+    /**
+     * 在单元格上放置障碍物
+     * @param row
+     * @param col
+     */
+    public void putDestination( int row, int col) throws SokobanException {
+        if ((map[row][col] & SokobanUtil.BLOCK) > 0) {
+            throw new SokobanException(String.format("无法放置目的地 %d行，%d列 已经存在障碍物", row, col));
+        }
+        map[row][col] = map[row][col] | SokobanUtil.DESTINATION;
+    }
+
+    public static void putDeadPoint(int[][] map, int row, int col) throws SokobanException {
+        map[row][col] = map[row][col] | SokobanUtil.DEAD_POINT;
+    }
+
 
     public List<int[]> getBoxSites() {
         return boxSites;

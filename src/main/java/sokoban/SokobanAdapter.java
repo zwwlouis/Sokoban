@@ -1,6 +1,7 @@
 package sokoban;
 
 import com.excalibur.core.util.json.JsonUtils;
+import com.sun.javafx.binding.StringFormatter;
 import model.MapJsonElement;
 import model.SokobanException;
 import org.apache.commons.lang.StringUtils;
@@ -43,14 +44,14 @@ public class SokobanAdapter {
         int sw = small[0].length;
         int lh = large.length;
         int lw = large[0].length;
-        if (sh < lh || sw < lw) {
+        if (sh > lh || sw > lw) {
             throw new SokobanException("地图尺寸错误！");
         }
-        int hOffset = (lh - sh)/2;
-        int wOffset = (lw - sw)/2;
+        int hOffset = (lh - sh) / 2;
+        int wOffset = (lw - sw) / 2;
         for (int i = 0; i < sh; i++) {
             for (int j = 0; j < sw; j++) {
-                large[i+hOffset][j+wOffset] = small[i][j];
+                large[i + hOffset][j + wOffset] = small[i][j];
             }
         }
     }
@@ -90,14 +91,14 @@ public class SokobanAdapter {
      * @param map
      * @return
      */
-    public String turnMapToString(int[][] map) {
+    public static String turnMapToString(int[][] map) {
         int row = map.length;
         int col = map[0].length;
         List<Object> mapObj = new ArrayList<>();
         for (int i = 0; i < row; i++) {
             List<Object> mapRowObj = new ArrayList<>();
             for (int j = 0; j < col; j++) {
-                mapRowObj.add(parseNumUnitToMap(map[row][col]));
+                mapRowObj.add(parseNumUnitToMap(map[i][j]));
             }
             mapObj.add(mapRowObj);
         }
@@ -156,17 +157,7 @@ public class SokobanAdapter {
 
 
     /**
-     * 石头
-     * 三角形石头： {type: 'stone', state: 'tri'}
-     * 方形石头： {type: 'stone', state: 'rect'}
-     * 树桩：{type: 'wood', state: 'normal'}
-     * 人：{type: 'girl', state: 'front1'}
-     * 费列罗：{type: 'ferrero', state: 'normal'}
-     * 目标地点：{type: 'des', state: 'light'}.
-     * *
-     * 转换后的格式:
-     * 地图格子  0-目标点  1-箱子  2-人  3-墙壁
-     * 0 - 空  * 1 - 目标点  * 2 - 箱子  * 3 - 箱子&目标点  * 4 - 人  * 5 - 人&目标点  * 8 - 墙壁
+     * 将数字地图块转成json
      *
      * @return
      */

@@ -1,7 +1,6 @@
 import model.SokobanException;
 import model.SokobanMap;
 import util.SokobanSolver;
-import util.SokobanUtil;
 
 public class Main {
     private static String stage =   "8888888\n" +
@@ -20,11 +19,11 @@ public class Main {
         SokobanMap sokobanMap = new SokobanMap(map);
         SokobanSolver solver = new SokobanSolver();
         try {
-            boolean result = solver.solveMapWithTimeCount(sokobanMap);
+            boolean result = solver.NormalSolver(sokobanMap);
             if(result){
                 System.out.println("solve complete!");
                 System.out.println(solver.getSolveStatus());
-                solver.printRoute();
+                solver.printBoxRoute(solver.getNormalSteps());
             }
         } catch (SokobanException e) {
             e.printStackTrace();

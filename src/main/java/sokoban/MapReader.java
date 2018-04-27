@@ -1,3 +1,5 @@
+package sokoban;
+
 import model.SokobanException;
 import model.SokobanMap;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +34,16 @@ public class MapReader {
                                         "  # $ ###\n" +
                                         "  #%^%#\n" +
                                         "  #####";
+    public static String puzzle1 =  " #######\n" +
+                                    "##%#. .#\n" +
+                                    "#% $ . #\n" +
+                                    "#%$#.$.#\n" +
+                                    "#% $ .%#\n" +
+                                    "## #$%##\n" +
+                                    "#%$ %##\n" +
+                                    "#% %##\n" +
+                                    "#^%##\n" +
+                                    "####";
 //    public static String testMap ="############\n" + "#..  #     ###\n" + "#..  # $  $  #\n" + "#..  #$####  #\n" + "#..    @ ##  #\n" + "#..  # #  $ ##\n" + "###### ##$ $ #\n" + "  # $  $ $ $ #\n" + "  #    #     #\n" + "  ############";
     /**
      * read from symbol map
@@ -104,12 +116,20 @@ public class MapReader {
 
     public static void main(String[] args) {
         try {
-            int[][] map = readFromSymbol(connection);
-            SokobanUtil.printMap(map);
+//            int[][] map = readFromSymbol(fillTheHall);
+            int[][] map = readFromSymbol(puzzle1);
+            SokobanUtil.specialPrintMap(map);
             SokobanMap sokobanMap = new SokobanMap(map);
             SokobanSolver solver = new SokobanSolver();
-            boolean result = solver.solveMapWithTimeCount(sokobanMap);
-            solver.printRoute();
+            boolean result = solver.NormalSolver(sokobanMap);
+//            SokobanUtil.specialPrintMap(sokobanMap.getMap());
+//            //打印移动方式
+//            solver.printBoxRoute(solver.getNormalSteps());
+//            //打印移动方式and地图
+//            solver.printBoxRouteWithMap(sokobanMap,solver.getNormalSteps());
+            //最佳求解
+            solver.BestSolver(sokobanMap);
+            solver.printBoxRouteWithMap(sokobanMap,solver.getBestStepsClone());
         } catch (SokobanException e) {
             e.printStackTrace();
         }
